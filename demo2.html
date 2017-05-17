@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>对画圆的动作进行封装</title>
+    <style>
+        #canvas{
+            width: 500px;
+            height: 250px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+
+<script>
+    //固定高度，这个是html默认的，无法变化
+    var width=300;
+    var height=150;
+    //分别定义的两个圆。
+    var c1=new Round({x:0,y:0,r:50,color:"red",speedX:0,speedY:0});
+    var c2=new Round({x:width,y:0,r:20,color:"blue",speedX:0,speedY:0})
+    var canvas=document.getElementById("canvas");
+    var context=canvas.getContext("2d");
+
+    window.onload=function () {
+        //一定要将逻辑和绘图完全分离开，这样后期方便维护；
+        changeData();
+        render();
+    }
+
+    //加速运动，c1加速度为：2,c2加速度为：-1；初始速度为0
+    function changeData() {
+        c2.y=c1.y=100;
+        setInterval(function () {
+            moveObj.call(c1,2,0);
+            moveObj.apply(c2,[-1,0]);//用call和apply都可以，不同的是，call是传入连续参数，apply是传入数组；从理解上而言，当然还是更推荐call了；
+        },100)
+    }
+
+    //为了兼容ie9，此处没有使用requestAnimationFrame；setInterval的最小间隔是16.4，因此我们设为17；而requestAnimationFrame的间隔为10，如果您没有兼容ie9的打算，完全可以使用它；
+    function render() {
+        setInterval(function () {
+            onUpdate()
+        },17)
+    }
+
+    //在每次update时，调用每个圆的绘制方法；
+    function onUpdate() {
+        context.clearRect(0,0,width,height);
+        c1.draw(context);
+        c2.draw(context);
+    }
+
+    //对象：圆。圆拥有画自己的方法；
+    function Round(option) {
+        option||(console.error("Round need params"));
+        this.x=option.x?option.x:0;
+        this.y=option.y?option.y:0;
+        this.r=option.r?option.r:0;
+        this.color=option.color?option.color:"black";
+        this.speedX=option.speedX?option.speedX:0;
+        this.speedY=option.speedY?option.speedY:0;
+        this.draw=function (context) {
+            context.save();
+            context.fillStyle=this.color;
+            context.beginPath();
+            context.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+            context.closePath();
+            context.fill();
+            context.restore();
+        }
+    }
+
+    //定义一个普适方法，移动物体;两个参数为X和Y方向的加速度；
+    function moveObj(accX,accY) {
+        this.speedX+=accX;
+        this.x+=this.speedX;
+        this.speedY+=accY;
+        this.y+=this.speedY;
+    }
+</script>
+</body>
+</html>

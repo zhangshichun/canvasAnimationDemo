@@ -78,12 +78,16 @@
         render();
     }
 
-    //加速运动，c1加速度为：2,c2加速度为：-1；初始速度为0
+    //圆心运动；
     function changeData() {
-        c2.y=c1.y=100;
+        var a=1;//向心加速度；
+        var center={x:width/2,y:height/2};//中心点；
+        c2.speedX=Math.sqrt(a*height/2)//a=mv2;所以求得其初始速度；
         setInterval(function () {
-            c1.moveWithAcc(2,0);
-            c2.moveWithAcc(-1,0);
+            var x_d=center.x-c2.x;
+            var y_d=center.y-c2.y;
+            var z_d=Math.sqrt(Math.pow(x_d,2)+Math.pow(y_d,2));
+            c2.moveWithAcc(a*x_d/z_d,a*y_d/z_d);//不停修正向心加速度在x和y上的分量
         },100)
     }
 
@@ -101,8 +105,8 @@
         c2.draw(context);
     }
 
-    var c1=new Round({x:0,y:0,r:50,color:"red",speedX:0,speedY:0});
-    var c2=new Round({x:width,y:0,r:20,color:"blue",speedX:0,speedY:0})
+    var c1=new Round({x:width/2,y:height/2,r:50,color:"green",speedX:0,speedY:0});
+    var c2=new Round({x:width/2,y:0,r:20,color:"blue",speedX:0,speedY:0})
 
 </script>
 </body>

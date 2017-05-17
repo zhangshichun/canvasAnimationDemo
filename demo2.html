@@ -35,8 +35,8 @@
     function changeData() {
         c2.y=c1.y=100;
         setInterval(function () {
-            moveObj.call(c1,2,0);
-            moveObj.apply(c2,[-1,0]);//用call和apply都可以，不同的是，call是传入连续参数，apply是传入数组；从理解上而言，当然还是更推荐call了；
+            c1.moveWithAcc(2,0);
+            c2.moveWithAcc(-1,0);
         },100)
     }
 
@@ -54,15 +54,32 @@
         c2.draw(context);
     }
 
-    //对象：圆。圆拥有画自己的方法；
-    function Round(option) {
-        option||(console.error("Round need params"));
+    function baseObject(option) {
+        this.color=option.color?option.color:"black";
+    }
+
+    //对象：会运动的物体；
+    function moveObject(option) {
+        //继承自基本物体
+        baseObject.apply(this,arguments)
         this.x=option.x?option.x:0;
         this.y=option.y?option.y:0;
-        this.r=option.r?option.r:0;
-        this.color=option.color?option.color:"black";
         this.speedX=option.speedX?option.speedX:0;
         this.speedY=option.speedY?option.speedY:0;
+        this.moveWithAcc=function (accX,accY) {
+            this.speedX+=accX;
+            this.x+=this.speedX;
+            this.speedY+=accY;
+            this.y+=this.speedY;
+        }
+    }
+    
+    //对象：圆。圆拥有画自己的方法；
+    function Round(option) {
+        //继承自会动的物体；
+        moveObject.apply(this,arguments);
+
+        this.r=option.r?option.r:0;
         this.draw=function (context) {
             context.save();
             context.fillStyle=this.color;
@@ -72,14 +89,6 @@
             context.fill();
             context.restore();
         }
-    }
-
-    //定义一个普适方法，移动物体;两个参数为X和Y方向的加速度；
-    function moveObj(accX,accY) {
-        this.speedX+=accX;
-        this.x+=this.speedX;
-        this.speedY+=accY;
-        this.y+=this.speedY;
     }
 </script>
 </body>

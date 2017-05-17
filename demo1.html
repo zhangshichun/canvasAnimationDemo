@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #canvas{
+            width: 300px;
+            height: 150px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+
+<script>
+    //一个匀速运动的球体
+    var obj={x:0,y:0,r:50,color:"red"}//横坐标，纵坐标，半径，颜色。关于一个圆的一切属性。
+    var canvas=document.getElementById("canvas");
+    var context=canvas.getContext("2d");
+    var width=canvas.width;
+    var height=canvas.height;
+
+    window.onload=function () {
+        //一定要将逻辑和绘图完全分离开，这样后期方便维护；
+        changeData();
+        render();
+    }
+
+    //这个业务很简单吧，每100毫秒加10像素的横坐标；
+    function changeData() {
+        var i=0;
+        obj.y=100;
+        setInterval(function () {
+            i+=10;
+            obj.x=i;
+        },100)
+
+    }
+
+    //为了兼容ie9，此处没有使用requestAnimationFrame；setInterval的最小间隔是16.4，因此我们设为17；而requestAnimationFrame的间隔为10，如果您没有兼容ie9的打算，完全可以使用它；
+    function render() {
+        setInterval(function () {
+            onUpdate()
+        },17)
+    }
+
+    //每17毫秒一次的绘制，不用关心业务逻辑，全心全意把数据当静态来画即可；
+    function onUpdate() {
+        context.clearRect(0,0,width,height);
+        context.fillStyle=obj.color;
+        context.beginPath();
+        context.arc(obj.x,obj.y,obj.r,0,Math.PI*2,true);
+        context.closePath();
+        context.fill();
+    }
+</script>
+</body>
+</html>

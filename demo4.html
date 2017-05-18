@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>对画圆的动作进行封装</title>
+    <style>
+        #canvas{
+            width: 1200px;
+            height: 600px;
+            border: 1px solid black;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="2400" height="1200"></canvas>
+
+
+<script>
+
+    function BaseObject(option) {
+        this.color=option.color?option.color:"black";
+        this.x=option.x?option.x:0;
+        this.y=option.y?option.y:0;
+        this.alpha=(option.alpha!=undefined)?option.alpha:1;
+    }
+
+    //对象：会运动的物体；
+    function MoveObject(option) {
+        //继承自基本物体
+        BaseObject.apply(this,arguments)
+        this.speedX=option.speedX?option.speedX:0;
+        this.speedY=option.speedY?option.speedY:0;
+    }
+    extend(MoveObject,BaseObject);
+    MoveObject.prototype.moveWithAcc=function (accX,accY) {
+        this.speedX+=accX;
+        this.x+=this.speedX;
+        this.speedY+=accY;
+        this.y+=this.speedY;
+    }
+
+    //对象：圆。圆拥有画自己的方法；
+    function Round(option) {
+        //继承自会动的物体；
+        MoveObject.apply(this,arguments);
+        this.r=option.r?option.r:0;
+    }
+    extend(Round,MoveObject);
+    Round.prototype.draw=function (context) {
+        context.save();
+        context.fillStyle=this.color;
+        context.globalAlpha=this.alpha;
+        context.beginPath();
+        context.arc(this.x,this.y,this.r,0,Math.PI*2,true);
+        context.closePath();
+        context.fill();
+        context.restore();
+    }
+
+    function extend(Child, Parent) {
+        var F = function(){};
+        F.prototype = Parent.prototype;
+        Child.prototype = new F();
+        console.log(Child.prototype)
+        Child.prototype.constructor = Child;
+        Child.uber = Parent.prototype;
+    }
+
+    var width=document.getElementById("canvas").getAttribute("width");
+    var height=document.getElementById("canvas").getAttribute("height");
+    //分别定义的两个圆。
+
+    var canvas=document.getElementById("canvas");
+    var context=canvas.getContext("2d");
+
+    window.onload=function () {
+        initStars();
+        //一定要将逻辑和绘图完全分离开，这样后期方便维护；
+        changeData();
+        render();
+    }
+
+    function initStars() {
+        for(var i=0;i<5;i++){
+            var x=Math.random()*width;
+            var y=Math.random()*height;
+            bigStars.push(new Round({x:x,y:y,r:16,color:"white",speedX:0,speedY:0}))
+        }
+        for(var i=0;i<10;i++){
+            var x=Math.random()*width;
+            var y=Math.random()*height;
+            midStars.push(new Round({x:x,y:y,r:10,color:"white",speedX:0,speedY:0}))
+        }
+        for(var i=0;i<20;i++){
+            var x=Math.random()*width;
+            var y=Math.random()*height;
+            litStars.push(new Round({x:x,y:y,r:6,color:"white",speedX:0,speedY:0}))
+        }
+    }
+
+    //闪烁
+    function changeData() {
+        for(var i=0;i<bigStars.length;i++){
+            bigStars[i].timeStamp=Math.random()*100;
+        }
+        for(var i=0;i<midStars.length;i++){
+            midStars[i].timeStamp=Math.random()*100;
+        }
+        for(var i=0;i<litStars.length;i++){
+            litStars[i].timeStamp=Math.random()*100;
+        }
+        setInterval(function () {
+            for(var i=0;i<bigStars.length;i++){
+                var a=Math.sin(bigStars[i].timeStamp++/2);
+                bigStars[i].alpha=0.5+0.5*a;
+            }
+            for(var i=0;i<midStars.length;i++){
+                var a=Math.sin(midStars[i].timeStamp++/2);
+                midStars[i].alpha=0.5+0.5*a;
+            }
+            for(var i=0;i<litStars.length;i++){
+                var a=Math.sin(litStars[i].timeStamp++/2);
+                litStars[i].alpha=0.5+0.5*a;
+            }
+        },100)
+    }
+
+    //为了兼容ie9，此处没有使用requestAnimationFrame；setInterval的最小间隔是16.4，因此我们设为17；而requestAnimationFrame的间隔为10，如果您没有兼容ie9的打算，完全可以使用它；
+    function render() {
+        setInterval(function () {
+            onUpdate()
+        },17)
+    }
+
+    //在每次update时，调用每个圆的绘制方法；
+    function onUpdate() {
+        context.clearRect(0,0,width,height);
+        for(var i=0;i<bigStars.length;i++){
+            bigStars[i].draw(context);
+        }
+        for(var i=0;i<midStars.length;i++){
+            midStars[i].draw(context);
+        }
+        for(var i=0;i<litStars.length;i++){
+            litStars[i].draw(context);
+        }
+    }
+
+    var litStars=[];
+    var midStars=[];
+    var bigStars=[];
+
+</script>
+</body>
+</html>

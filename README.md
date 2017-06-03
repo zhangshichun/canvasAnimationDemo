@@ -10,5 +10,7 @@ a demo of canvas animation;一个canvas动画的demo
 + 使用demo2的封装，进行了最简单的圆心运动。只用设定初速度和不断变化方向的加速度；
 ### demo4:
 + 群星闪烁效果的实现；在封装中继续加入不透明度的封装；
+### demo5:
++ 一个进度条控件的实现;
 # License
-Apache License 2.0
+Apache License 2.0````

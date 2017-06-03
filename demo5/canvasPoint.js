@@ -22,9 +22,9 @@ var canvasPoint=function() {
         if(!(a&&b)){
             return;
         }
-        var itemWidth=_option.itemWidth?_option.itemWidth:400;
+        itemWidth=_option.itemWidth?_option.itemWidth:400;
         var size=pointList.length;
-        cssWidth=400*size;
+        cssWidth=itemWidth*size;
         canvasWidth=2*cssWidth;
         render();
     }
@@ -40,23 +40,30 @@ var canvasPoint=function() {
         context.strokeStyle='lightgray';
         context.lineWidth=30;
         context.lineCap='round';
+        context.shadowColor="black";
+        context.shadowBlur=20;
         context.beginPath();
         context.moveTo(20,canvasHeight/2);
-        context.lineTo(780*pointList.length,canvasHeight/2);
+        context.lineTo(canvasWidth-20,canvasHeight/2);
         context.stroke();
         context.closePath();
+        context.shadowColor=null;
+        context.shadowBlur=null;
+        context.textAlign="center";
         pointList.forEach(function (p1, p2, p3) {
-            var r1=new Circle({x:400*(p2)*2+400,y:canvasHeight/2,color1:"lightgray",color2:"blue",r1:60,r2:30});
-            console.log(r1)
-            r1.draw(context)
-
-            context.textAlign="center";
+            if(p1.done){
+                var r1=new Circle({x:itemWidth*(p2)*2+itemWidth,y:canvasHeight/2,color1:"lightgray",color2:"#5bc0de",r1:60,r2:30,shadowColor1:"black",shadowBlur1:20});
+                context.fillStyle = "#5bc0de";
+            }else {
+                var r1=new Circle({x:itemWidth*(p2)*2+itemWidth,y:canvasHeight/2,color1:"lightgray",color2:"darkgray",r1:60,r2:30,shadowColor1:"black",shadowBlur1:20});
+                context.fillStyle="darkgray"
+            }
+            r1.draw(context);
+            context.textBaseline = 'bottom';
+            context.fillText(p1.name,itemWidth*(p2)*2+itemWidth,canvasHeight);
             context.textBaseline = 'middle';
             context.fillStyle = "white";
-            context.fillText((p2+1)+"",400*(p2)*2+400,canvasHeight/2);
-            context.textBaseline = 'bottom';
-            context.fillStyle = "blue";
-            context.fillText(p1.name,400*(p2)*2+400,canvasHeight);
+            context.fillText((p2+1)+"",itemWidth*(p2)*2+itemWidth,canvasHeight/2);
         });
     }
 
@@ -91,14 +98,24 @@ var canvasPoint=function() {
         this.r1=option.r1?option.r1:10;
         this.r2=option.r2?option.r2:0;
         this.color1=option.color1?option.color1:"black";
-        this.color2=option.color2?option.color2:0;
+        this.color2=option.color2?option.color2:"black";
+        this.shadowColor1=option.shadowColor1?option.shadowColor1:null;
+        this.shadowColor2=option.shadowColor2?option.shadowColor2:null;
+        this.shadowBlur1=option.shadowBlur1?option.shadowBlur1:null;
+        this.shadowBlur2=option.shadowBlur2?option.shadowBlur2:null;
     }
     extend(Circle,BaseObject);
     Circle.prototype.draw=function (context) {
+        context.shadowColor=this.shadowColor1;
+        context.shadowBlur=this.shadowBlur1;
         var r1=new Round({x:this.x,y:this.y,color:this.color1,r:this.r1});
         r1.draw(context);
+        context.shadowColor=this.shadowColor2;
+        context.shadowBlur=this.shadowBlur2;
         var r2=new Round({x:this.x,y:this.y,color:this.color2,r:this.r2})
         r2.draw(context);
+        context.shadowColor=null;
+        context.shadowBlur=null;
     }
 
     function Triangle() {
@@ -109,7 +126,6 @@ var canvasPoint=function() {
         var F = function(){};
         F.prototype = Parent.prototype;
         Child.prototype = new F();
-        console.log(Child.prototype)
         Child.prototype.constructor = Child;
         Child.uber = Parent.prototype;
     }
